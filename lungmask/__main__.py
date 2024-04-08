@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import math
 from importlib import metadata
 
 import numpy as np
@@ -9,6 +10,7 @@ import SimpleITK as sitk
 from lungmask import LMInferer, utils
 from lungmask.logger import logger
 
+import pydicom as pyd
 
 def path(string):
     if os.path.exists(string):
@@ -75,8 +77,19 @@ def main():
         help="Do not keep study/patient related metadata of the input, if any. Only affects output file formats that can store such information (e.g. DICOM).",
     )
 
+    parser.add_argument(
+        "--applymask",
+        action="store_true",
+        help="Applies the computed lung mask on the input data instead and writes out a new series",
+    )
+
     argsin = sys.argv[1:]
     args = parser.parse_args(argsin)
+
+    if args.applymask:
+        if not os.path.isdir(args.output):
+            logger.error("!!! Error: for switch --applymask, the output argument must be an existing directory")
+            sys.exit()
 
     batchsize = args.batchsize
     if args.cpu:
@@ -115,6 +128,42 @@ def main():
             tqdm_disable=args.noprogress,
         )
         result = inferer.apply(input_image)
+
+    if args.applymask:
+
+        logger.info("Writing masked images")
+
+        # how many diigts we need for the file names
+        volume_file_list = utils.get_filepath_list_from_image(input_image)
+
+        pad_needed = math.trunc(math.log10(len(volume_file_list) - 1)) + 1
+        
+        new_series_instance_UID = ''
+
+        for ind in range(len(volume_file_list)):
+
+            ds = pyd.dcmread(volume_file_list[ind])
+
+            if len(new_series_instance_UID) == 0:
+                new_series_instance_UID = utils.generate_instance_UID(ds.SeriesInstanceUID)
+
+            # generate new SOP and Series Instance UID
+            ds.SOPInstanceUID = utils.generate_instance_UID(ds.SOPInstanceUID)
+            ds.SeriesDescription = 'Lung segmented on series ' + ds.SeriesInstanceUID
+            ds.SeriesInstanceUID = new_series_instance_UID
+
+            # set up window width and center for lung
+            ds.WindowCenter = -700
+            ds.WindowWidth = 700
+
+            input_array = ds.pixel_array
+            mask_array = result[ind]
+            out_array = np.where(mask_array > 0, input_array, 0)
+
+            ds.PixelData = out_array.tobytes()
+            ds.save_as(args.output + '/' + 'lung_masked_' + str(ind).zfill(pad_needed) + '.dcm')
+            
+        sys.exit()
 
     result_out = sitk.GetImageFromArray(result)
     result_out.CopyInformation(input_image)

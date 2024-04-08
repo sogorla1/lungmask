@@ -6,12 +6,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setuptools.setup(
     name="lungmask",
     version="0.2.20",
-    author="Johannes Hofmanninger",
-    author_email="j.hofmanninger@gmail.com",
-    description="Package for automated lung segmentation in CT",
+    author="Laszlo Sogor",
+    author_email="laszlo.sogor@gehealthcare.com",
+    description="Modified version of Lungmask 0.2.20, please check URL for details.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/JoHof/lungmask",
+    url="https://github.com/sogorla1/lungmask",
     packages=setuptools.find_packages(),
     entry_points={"console_scripts": ["lungmask = lungmask.__main__:main"]},
     install_requires=[

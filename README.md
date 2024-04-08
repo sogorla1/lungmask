@@ -1,3 +1,20 @@
+# WARNING!
+This repository contains a non-official modification of Lungmask which will not be merged back to the main repository.
+
+Modifications to version 0.2.20:
+- added argument `--applymask`
+- applymask adds a new mode
+  - expects directory as output rather than file
+  - adds the input files as metadata to the loaded ITK Image (utility functions added)
+  - replaces the pixel data of the original images
+    - adds the images to a new DICOM series
+    - changes WW/WL
+    - keeps other metadata
+    - applies the calculated mask to the image data
+    - creates new DICOM files, one per input file
+
+The purpose of this modification is to enhance input data for ML by keeping only the lung pixels.
+
 # Automated lung segmentation in CT under presence of severe pathologies
 
 This package provides trained U-net models for lung segmentation. For now, four models are available:

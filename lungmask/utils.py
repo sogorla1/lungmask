@@ -1,5 +1,7 @@
 import os
 import sys
+import json
+import random as rnd
 from typing import Tuple
 
 import fill_voids
@@ -28,6 +30,8 @@ DICOM_METADATA_TO_KEEP = (
     '0020|000d', # StudyInstanceUID
     '0020|0010'  # StudyID
 )
+
+DICTIONARY_KEY_STORE_PATHS = '__private_dict_store_file_list__'
 
 def preprocess(
     img: np.ndarray, resolution: list = [192, 192]
@@ -225,6 +229,8 @@ def read_dicoms(path, primary=True, original=True, disable_tqdm=False, read_meta
             for key in reader.GetMetaDataKeys(0):
                 vol.SetMetaData(key, reader.GetMetaData(0, key))
 
+        set_filepath_list_in_image(vol, vol_files.tolist())
+
         relevant_volumes.append(vol)
 
     return relevant_volumes
@@ -251,6 +257,8 @@ def load_input_image(path: str, disable_tqdm=False, read_metadata=False) -> sitk
         if read_metadata:
             for key in reader.GetMetaDataKeys():
                 input_image.SetMetaData(key, reader.GetMetaData(key))
+
+        set_filepath_list_in_image(input_image, [path])
                 
     else:
         logger.info(f"Looking for dicoms in {path}")
@@ -413,3 +421,38 @@ def get_DICOM_tags_to_keep():
         Tuple with the DICOM tags to keep
     """
     return DICOM_METADATA_TO_KEEP
+
+def set_filepath_list_in_image(image: sitk.Image, files: list):
+    image.SetMetaData(DICTIONARY_KEY_STORE_PATHS, json.dumps(files))
+
+def get_filepath_list_from_image(image: sitk.Image):
+    return json.loads(image.GetMetaData(DICTIONARY_KEY_STORE_PATHS))
+
+def generate_random_number_as_string(length: int) -> str:
+    num_str = ''
+    if length < 1:
+        return num_str
+    
+    num_str += str(rnd.randint(1, 9))
+    length = length - 1
+
+    for i in range(length):
+        num_str += str(rnd.randint(0, 9))
+
+    return num_str
+
+def generate_instance_UID(input: str) -> str:
+
+    try:
+        base = input[0:input.rindex('.')]
+        fill_len = 64 - len(base) - 1
+
+        if fill_len >= 63:
+            return ''
+
+        output = base + '.' + generate_random_number_as_string(fill_len)
+
+        return output
+    except:
+        print(f'generate_instance_UID(): exception')
+        return ''
