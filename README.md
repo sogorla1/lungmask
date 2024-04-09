@@ -5,12 +5,12 @@ Modifications to version 0.2.20:
 - added argument `--applymask`
 - applymask adds a new mode
   - expects directory as output rather than file
-  - adds the input files as metadata to the loaded ITK Image (utility functions added)
+  - adds the list of input files as metadata to the loaded ITK Image (utility functions added)
   - replaces the pixel data of the original images
-    - adds the images to a new DICOM series
+    - creates a new DICOM Series, keeps Study and Patient related info
     - changes WW/WL
     - keeps other metadata
-    - applies the calculated mask to the image data
+    - applies the calculated mask to the original image data
     - creates new DICOM files, one per input file
 
 The purpose of this modification is to enhance input data for ML by keeping only the lung pixels.
