@@ -1,5 +1,5 @@
 # WARNING!
-This repository contains a non-official modification of Lungmask which will not be merged back to the main repository.
+This repository contains a non-official modification of Lungmask that will not be merged back to the main repository.
 
 Modifications to version 0.2.20:
 - added argument `--applymask`
