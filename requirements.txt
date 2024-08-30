@@ -1,9 +1,11 @@
 fill_voids
 more-itertools
-numpy
+numpy<2
 pydicom
 scikit-image
 scipy
 SimpleITK
 torch
 tqdm
+pylibjpeg
+pylibjpeg-libjpeg

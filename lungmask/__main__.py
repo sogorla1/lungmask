@@ -12,6 +12,8 @@ from lungmask.logger import logger
 
 import pydicom as pyd
 
+from pydicom.uid import ExplicitVRLittleEndian
+
 def path(string):
     if os.path.exists(string):
         return string
@@ -161,6 +163,11 @@ def main():
             out_array = np.where(mask_array > 0, input_array, 0)
 
             ds.PixelData = out_array.tobytes()
+
+            # the output file will contain raw 16-bit image
+            ds.file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
+            ds[0x7fe0, 0x0010].VR = 'OW'
+
             ds.save_as(args.output + '/' + 'lung_masked_' + str(ind).zfill(pad_needed) + '.dcm')
             
         sys.exit()

@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="lungmask",
-    version="0.2.20",
+    version="0.2.20.1",
     author="Johannes Hofmanninger",
     author_email="j.hofmanninger@gmail.com",
     description="Modified version of Lungmask 0.2.20, please check URL for details.",
@@ -16,7 +16,7 @@ setuptools.setup(
     entry_points={"console_scripts": ["lungmask = lungmask.__main__:main"]},
     install_requires=[
         "pydicom",
-        "numpy",
+        "numpy<2",
         "torch",
         "scipy",
         "SimpleITK",
@@ -24,6 +24,8 @@ setuptools.setup(
         "scikit-image",
         "fill_voids",
         "more-itertools",
+        "pylibjpeg",
+        "pylibjpeg-libjpeg",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
